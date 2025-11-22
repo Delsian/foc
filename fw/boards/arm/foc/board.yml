@@ -1,0 +1,6 @@
+board:
+  name: foc_431
+  full_name: STM32G431 Core Board (foc)
+  vendor: foc
+  socs:
+    - name: stm32g431xx

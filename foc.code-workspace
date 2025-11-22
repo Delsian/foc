@@ -5,10 +5,9 @@
             "path": "./fw"
         },
         {
-            "name": "zephyr",
-            "path": "./zephyr"
-        },
-	],
+            "path": "../zephyr"
+        }
+    ],
 	"settings": {
         "west": "west",
         "ninja": "ninja",

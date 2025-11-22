@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_FOC
+    bool "FOC (STM32G431 Core) board support"
+    default y
+    select SOC_STM32G431XX
+    help
+      Enable configuration options specific to the FOC board.

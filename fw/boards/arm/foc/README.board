@@ -1,0 +1,4 @@
+FOC board (STM32G431 Core)
+
+Minimal placeholder board files for Zephyr under `boards/arm/foc`.
+
