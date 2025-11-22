@@ -1,0 +1,212 @@
+{
+	"folders": [
+        {
+            "name": "fw",
+            "path": "./fw"
+        },
+        {
+            "name": "zephyr",
+            "path": "./zephyr"
+        },
+	],
+	"settings": {
+        "west": "west",
+        "ninja": "ninja",
+
+        "cmake.configureOnOpen": false,
+
+        "armToolchainPath": "${env:GNUARMEMB_TOOLCHAIN_PATH}",
+
+        "files.associations": {
+            "xstring": "cpp",
+        },
+
+        // The number of spaces a tab is equal to. This setting is overridden
+        // based on the file contents when `editor.detectIndentation` is true.
+        "editor.tabSize": 4,
+
+        // Insert spaces when pressing Tab. This setting is overriden
+        // based on the file contents when `editor.detectIndentation` is true.
+        "editor.insertSpaces": true,
+
+        // When opening a file, `editor.tabSize` and `editor.insertSpaces`
+        // will be detected based on the file contents. Set to false to keep
+        // the values you've explicitly set, above.
+        "editor.detectIndentation": false,
+        "editor.rulers": [80, 120],
+        "editor.cursorBlinking": "smooth",
+
+        "files.trimFinalNewlines": true,
+        "files.trimTrailingWhitespace": true,
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 3000,
+
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": [],
+
+        "editor.renderWhitespace": "all",
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/**": true,
+            "**/tmp/**": true,
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/node_modules": true,
+            "**/bower_components": true,
+            "**/dist/**": true,
+            "**/log/**": true,
+            "**/logs/**": true,
+            "**/.fdk/**": true,
+            "**/.west/**": true,
+            "**/.vscode/**": true,
+            "${workspaceRoot}/../zephyr-ws/**": true,
+            "**/.history/**": true
+        },
+        "files.exclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/**": true,
+            "**/tmp/**": true,
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/node_modules": true,
+            "**/bower_components": true,
+            "**/dist/**": true,
+            "**/log/**": true,
+            "**/.fdk/**": true,
+            "**/.west/**": true,
+            "**/.history/**": true
+        },
+        "search.exclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/**": true,
+            "**/tmp/**": true,
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/node_modules": true,
+            "**/bower_components": true,
+            "**/dist/**": true,
+            "**/log/**": true,
+            "**/.west/**": true,
+            "**/.history/**": true
+        },
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.patterns": {
+            "prj.conf": "prj*.conf"
+        },
+        "editor.renderControlCharacters": false,
+        "cortex-debug.variableUseNaturalFormat": false,
+        "nrf-connect.applications": [
+            "${workspaceFolder:fw}",
+        ],
+        "editor.fontSize": 16,
+
+        "build_dir": "${workspaceFolder:fw}/build",
+        "zephyr_config": "-DOVERLAY_CONFIG=prj.conf;prj_debug.conf",
+        "board_overlay": "-DDTC_OVERLAY_FILE=${workspaceFolder:fw}/boards/nrf54l15dk.overlay",
+        "compile_args": "",
+        "debug_soc": "NRF54L15_M33",
+        "svdFile": "nrf54l15_application.svd"
+    },
+	"tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "BuildFOC",
+                "type": "process",
+                "command": "${config:west}",
+                "options": {
+                    "cwd": "${workspaceFolder:fw}",
+                    "env": {
+                        "ZEPHYR_BASE": "${workspaceFolder:zephyr}"
+                    }
+                },
+                "args": [
+                    "build",
+                    "-d",
+                    "${config:build_dir}"
+                ],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "problemMatcher": [ "$gcc" ]
+            },
+            {
+                "label": "ConfigureBuild",
+                "type": "process",
+                "command": "${config:west}",
+                "options": {
+                    "cwd": "${workspaceFolder:fw}",
+                    "env": {
+                        "ZEPHYR_BASE": "${workspaceFolder:zephyr}"
+                    }
+                },
+                "args": [
+                    "build",
+                    "-d",
+                    "${config:build_dir}",
+                    "-b",
+                    "nrf54l15dk/nrf54l15/cpuapp",
+                    "${workspaceFolder:fw}",
+                    "${config:zephyr_config}",
+                    "-DBOARD_ROOT=${workspaceFolder:fw}",
+                    "${config:compile_args}",
+                    "${config:board_overlay}"
+                ],
+                "group": {
+                    "kind": "build"
+                },
+                "problemMatcher": [ "$gcc" ]
+            },
+		]
+	},
+    "launch": {
+        "configurations": [
+            {
+                "name": "Run FOC",
+                "cwd": "${workspaceFolder:fw}",
+                "executable": "${config:build_dir}/fw/zephyr/zephyr.elf",
+                "request": "launch",
+                "type": "cortex-debug",
+                "runToEntryPoint": "main",
+                "servertype": "jlink",
+                "serverpath": "JLinkGDBServerCLExe",
+                "device": "${config:debug_soc}",
+                "svdFile": "${config:svdFile}",
+                "interface": "swd",
+                "armToolchainPath": "${config:armToolchainPath}/arm-zephyr-eabi/bin/",
+                "toolchainPrefix": "arm-zephyr-eabi",
+                "showDevDebugOutput": "parsed",
+                "liveWatch": {
+                    "enabled": true,
+                    "samplesPerSecond": 4
+                },
+                "rttConfig": {
+                    "enabled": true,
+                    "address": "auto",
+                    "decoders": [
+                        {
+                            "label": "",
+                            "port": 0,
+                            "type": "console"
+                        }
+                    ]
+                },
+                "preLaunchTask": "BuildFOC",
+                "serverArgs": ["-speed", "4000"]
+            },
+        ]
+    }
+}

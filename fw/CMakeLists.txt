@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.20.0)
+
+set(BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (NOT BUILD_TYPE)
+    set(BUILD_TYPE debug)
+endif()
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(foc)
+
+target_sources(app PRIVATE
+    src/main.c
+)
+
+include_directories(src)
+
+# Add debug-specific compiler flags
+if(BUILD_TYPE STREQUAL "debug")
+    target_compile_options(app PRIVATE -O0 -g3)
+    target_compile_definitions(app PRIVATE DEBUG=1)
+endif()
