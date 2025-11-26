@@ -11,6 +11,7 @@ project(foc)
 
 target_sources(app PRIVATE
     src/main.c
+    src/oled.c
 )
 
 include_directories(src)
