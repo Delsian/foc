@@ -111,12 +111,14 @@
         ],
         "editor.fontSize": 16,
 
-        "build_dir": "${workspaceFolder:fw}/build",
-        "zephyr_config": "-DOVERLAY_CONFIG=prj.conf;prj_debug.conf",
-        "board_overlay": "-DDTC_OVERLAY_FILE=${workspaceFolder:fw}/boards/nrf54l15dk.overlay",
-        "compile_args": "",
-        "debug_soc": "NRF54L15_M33",
-        "svdFile": "nrf54l15_application.svd"
+        "app": {
+            "build_dir": "${workspaceFolder:fw}/build",
+            "zephyr_config": "-DOVERLAY_CONFIG=prj.conf;prj_debug.conf",
+            "compile_args": "",
+            "debug_soc": "STM32G431CBUx",
+            "svdFile": "STM32G431.svd",
+            "board": "foc_431"
+        }
     },
 	"tasks": {
         "version": "2.0.0",
@@ -134,7 +136,7 @@
                 "args": [
                     "build",
                     "-d",
-                    "${config:build_dir}"
+                    "${config:app.build_dir}"
                 ],
                 "group": {
                     "kind": "build",
@@ -155,14 +157,13 @@
                 "args": [
                     "build",
                     "-d",
-                    "${config:build_dir}",
+                    "${config:app.build_dir}",
                     "-b",
-                    "nrf54l15dk/nrf54l15/cpuapp",
+                    "${config:app.board}",
                     "${workspaceFolder:fw}",
-                    "${config:zephyr_config}",
+                    "${config:app.zephyr_config}",
                     "-DBOARD_ROOT=${workspaceFolder:fw}",
-                    "${config:compile_args}",
-                    "${config:board_overlay}"
+                    "${config:app.compile_args}"
                 ],
                 "group": {
                     "kind": "build"
@@ -176,18 +177,22 @@
             {
                 "name": "Run FOC",
                 "cwd": "${workspaceFolder:fw}",
-                "executable": "${config:build_dir}/fw/zephyr/zephyr.elf",
+                "executable": "${config:app.build_dir}/zephyr/zephyr.elf",
                 "request": "launch",
                 "type": "cortex-debug",
                 "runToEntryPoint": "main",
-                "servertype": "jlink",
-                "serverpath": "JLinkGDBServerCLExe",
-                "device": "${config:debug_soc}",
-                "svdFile": "${config:svdFile}",
+                "servertype": "openocd",
+                "serverpath": "openocd",
+                "device": "${config:app.debug_soc}",
+                "svdFile": "${config:app.svdFile}",
                 "interface": "swd",
                 "armToolchainPath": "${config:armToolchainPath}/arm-zephyr-eabi/bin/",
                 "toolchainPrefix": "arm-zephyr-eabi",
                 "showDevDebugOutput": "parsed",
+                "configFiles": [
+                    "interface/cmsis-dap.cfg",
+                    "target/stm32g4x.cfg"
+                ],
                 "liveWatch": {
                     "enabled": true,
                     "samplesPerSecond": 4
@@ -203,8 +208,7 @@
                         }
                     ]
                 },
-                "preLaunchTask": "BuildFOC",
-                "serverArgs": ["-speed", "4000"]
+                "preLaunchTask": "BuildFOC"
             },
         ]
     }
