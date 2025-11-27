@@ -115,7 +115,7 @@
             "build_dir": "${workspaceFolder:fw}/build",
             "zephyr_config": "-DOVERLAY_CONFIG=prj.conf;prj_debug.conf",
             "compile_args": "",
-            "debug_soc": "STM32G431CBUx",
+            "debug_soc": "STM32G431C8",
             "svdFile": "STM32G431.svd",
             "board": "foc_431"
         }
@@ -209,6 +209,39 @@
                     ]
                 },
                 "preLaunchTask": "BuildFOC"
+            },
+            {
+                "name": "Run2",
+                "cwd": "${workspaceFolder:fw}",
+                "executable": "${config:app.build_dir}/zephyr/zephyr.elf",
+                "request": "launch",
+                "type": "cortex-debug",
+                "runToEntryPoint": "main",
+                "servertype": "jlink",
+                "serverpath": "JLinkGDBServerCLExe",
+                "device": "${config:app.debug_soc}",
+                "svdFile": "${config:app.svdFile}",
+                "interface": "swd",
+                "armToolchainPath": "${config:armToolchainPath}/arm-zephyr-eabi/bin/",
+                "toolchainPrefix": "arm-zephyr-eabi",
+                "showDevDebugOutput": "parsed",
+                "liveWatch": {
+                    "enabled": true,
+                    "samplesPerSecond": 4
+                },
+                "rttConfig": {
+                    "enabled": true,
+                    "address": "auto",
+                    "decoders": [
+                        {
+                            "label": "",
+                            "port": 0,
+                            "type": "console"
+                        }
+                    ]
+                },
+                "preLaunchTask": "BuildFOC",
+                "serverArgs": ["-speed", "4000"]
             },
         ]
     }
