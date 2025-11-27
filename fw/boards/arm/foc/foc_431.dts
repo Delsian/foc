@@ -143,7 +143,7 @@ stm32_lp_tick_source: &lptim1 {
 };
 
 &iwdg {
-	status = "okay";
+	status = "disabled";  /* Disable for debugging */
 };
 
 &usart2 {
@@ -186,6 +186,10 @@ zephyr_udc0: &usb {
 	clocks = <&rcc STM32_CLOCK(APB1, 23)>,
 		 <&rcc STM32_SRC_PLL_Q CLK48_SEL(2)>;
 	status = "okay";
+    cdc_acm_uart: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM";
+	};
 };
 
 &i2c1 {
