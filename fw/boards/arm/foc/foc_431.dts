@@ -100,7 +100,7 @@
 
 &rcc {
 	clocks = <&pll>;
-	clock-frequency = <DT_FREQ_M(144)>;
+	clock-frequency = <DT_FREQ_M(64)>;
 	ahb-prescaler = <1>;
 	apb1-prescaler = <1>;
 	apb2-prescaler = <1>;
@@ -109,7 +109,7 @@
 &pll {
 	status = "okay";
 	div-m = <2>;
-	mul-n = <72>;
+	mul-n = <32>;
 	div-p = <2>;
 	div-q = <6>;
 	div-r = <2>;
@@ -143,7 +143,7 @@ stm32_lp_tick_source: &lptim1 {
 };
 
 &iwdg {
-	status = "okay";
+	status = "disabled";  /* Disable for debugging */
 };
 
 &usart2 {
@@ -207,4 +207,12 @@ zephyr_udc0: &usb {
 		com-invdir;
 		prechargep = <0x22>;
 	};
+};
+
+&gpioa {
+	status = "okay";
+};
+
+&gpiob {
+	status = "okay";
 };
