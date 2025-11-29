@@ -7,9 +7,10 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_DBG);
 int main(void)
 {
     uint8_t val = 0;
+
     LOG_INF("Starting");
 
-    // Initialize OLED display
+    // Initialize OLED display (failures are handled internally)
     oled_init();
 
     while (1) {

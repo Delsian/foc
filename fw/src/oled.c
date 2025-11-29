@@ -9,6 +9,7 @@
 LOG_MODULE_REGISTER(oled, LOG_LEVEL_DBG);
 
 static const struct device *i2c_dev;
+static bool oled_initialized = false;
 static uint8_t buffer[(SSD1306_WIDTH/8) * SSD1306_HEIGHT];
 
 /**
@@ -124,22 +125,20 @@ void oled_init(void) {
     i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c1));
     if (!device_is_ready(i2c_dev)) {
         LOG_ERR("I2C device not ready");
+        oled_initialized = false;
         return;
     }
-
-    LOG_INF("I2C device ready, configuring SSD1306...");
-
-    // Small delay to let the display power up
-    k_msleep(100);
 
     // Send initialization sequence
     ret = ssd1306_WriteCommandSeq(init_seq, sizeof(init_seq));
     if (ret != 0) {
         LOG_ERR("Failed to initialize SSD1306: %d", ret);
+        oled_initialized = false;
         return;
     }
 
     LOG_INF("SSD1306 initialized");
+    oled_initialized = true;
 }
 
 void oled_update(void)
@@ -238,6 +237,12 @@ static void copy_buf(const uint8_t* ptr, uint8_t pos) {
 
 void oled_write(uint16_t n) {
     bool show = false;
+
+    // Exit early if OLED is not initialized
+    if (!oled_initialized) {
+        return;
+    }
+
     memset(buffer, 0, sizeof(buffer));
 
     if (n > 999) {

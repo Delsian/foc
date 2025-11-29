@@ -51,6 +51,7 @@
 
 		button_1: button1 {
 			label = "Boot0";
+			/* WARNING: PB8 is used as BOOT0 button */
 			gpios = <&gpiob 8 GPIO_ACTIVE_HIGH>;
 			zephyr,code = <INPUT_KEY_1>;
 		};
@@ -143,7 +144,7 @@ stm32_lp_tick_source: &lptim1 {
 };
 
 &iwdg {
-	status = "okay";
+	status = "disabled";
 };
 
 &usart2 {
@@ -190,9 +191,11 @@ zephyr_udc0: &usb {
 
 &i2c1 {
 	status = "okay";
-	pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
+	/* NOTE: Using PA15/PB7 instead of PB8/PB9
+	 * PB8 is reserved for BOOT0 button - see gpio_keys above */
+	pinctrl-0 = <&i2c1_scl_pa15 &i2c1_sda_pb7>;
 	pinctrl-names = "default";
-	clock-frequency = <I2C_BITRATE_STANDARD>;
+	clock-frequency = <I2C_BITRATE_FAST>;
 
 	ssd1306: ssd1306@3c {
 		compatible = "solomon,ssd1306fb";
