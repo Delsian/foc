@@ -1,0 +1,7 @@
+/*
+ * Device tree overlay to disable USB when CONFIG_ENABLE_USB=n
+ */
+
+&usb {
+	status = "disabled";
+};

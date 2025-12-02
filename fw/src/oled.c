@@ -6,7 +6,7 @@
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(oled, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(oled, LOG_LEVEL_INF);
 
 static const struct device *i2c_dev;
 static bool oled_initialized = false;
@@ -29,7 +29,7 @@ static int oled_send(uint8_t addr, const uint8_t *bytes, uint8_t len) {
 
     ret = i2c_write(i2c_dev, buf, len + 1, SSD1306_I2C_ADDR);
     if (ret != 0) {
-        LOG_ERR("I2C write failed: %d", ret);
+        LOG_INF("I2C write failed: %d", ret);
         return ret;
     }
 
@@ -124,7 +124,7 @@ void oled_init(void) {
     // Get I2C device binding
     i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c1));
     if (!device_is_ready(i2c_dev)) {
-        LOG_ERR("I2C device not ready");
+        LOG_INF("I2C device not ready");
         oled_initialized = false;
         return;
     }
@@ -132,7 +132,7 @@ void oled_init(void) {
     // Send initialization sequence
     ret = ssd1306_WriteCommandSeq(init_seq, sizeof(init_seq));
     if (ret != 0) {
-        LOG_ERR("Failed to initialize SSD1306: %d", ret);
+        LOG_INF("Failed to initialize SSD1306: %d", ret);
         oled_initialized = false;
         return;
     }

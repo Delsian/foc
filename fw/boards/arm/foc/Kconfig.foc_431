@@ -6,3 +6,11 @@ config BOARD_FOC
     select SOC_STM32G431XX
     help
       Enable configuration options specific to the FOC board.
+
+config ENABLE_USB
+    bool "Enable USB CDC-ACM support"
+    default y
+    select USB_DEVICE_STACK_NEXT if ENABLE_USB
+    select USBD_CDC_ACM_CLASS if ENABLE_USB
+    help
+      Enable USB CDC-ACM device support for communication.

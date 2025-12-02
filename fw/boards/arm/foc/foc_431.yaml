@@ -5,15 +5,18 @@ arch: arm
 toolchain:
   - zephyr
   - gnuarmemb
+  - xtools
 ram: 32
 flash: 128
 supported:
+  - pwm
   - counter
   - gpio
   - nvs
   - pinctrl
-  - tcpc
   - uart
   - usb_device
-  - watchdog
+  - spi
+  - i2c
+  - can
 vendor: foc

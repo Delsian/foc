@@ -6,13 +6,13 @@
 
 /dts-v1/;
 #include <st/g4/stm32g431Xb.dtsi>
-#include <st/g4/stm32g431c(6-8-b)ux-pinctrl.dtsi>
+#include <st/g4/stm32g431c(6-8-b)tx-pinctrl.dtsi>
 #include <zephyr/dt-bindings/usb-c/pd.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
 	model = "FOC STM32G431 Core Board";
-	compatible = "foc,stm32g431-core";
+	compatible = "st,stm32g431";
 
 	chosen {
 		zephyr,console = &usart2;
@@ -129,20 +129,6 @@ stm32_lp_tick_source: &lptim1 {
 		 <&rcc STM32_SRC_LSE LPTIM1_SEL(3)>;
 };
 
-&flash0 {
-	partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		/* 4KiB of storage at the end of the 128KiB FLASH */
-		storage_partition: partition@1f000 {
-			label = "storage";
-			reg = <0x0001f000 DT_SIZE_K(4)>;
-		};
-	};
-};
-
 &iwdg {
 	status = "disabled";
 };
@@ -187,6 +173,10 @@ zephyr_udc0: &usb {
 	clocks = <&rcc STM32_CLOCK(APB1, 23)>,
 		 <&rcc STM32_SRC_PLL_Q CLK48_SEL(2)>;
 	status = "okay";
+
+	cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
 };
 
 &i2c1 {
