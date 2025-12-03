@@ -18,7 +18,7 @@ This document describes the final pin allocation for the FOC (Field-Oriented Con
 | Pin | Function | Timer Channel | Notes |
 |-----|----------|---------------|-------|
 | PA5 | PWM_M0_CH1 | TIM2_CH1 | Phase A |
-| PB3 | PWM_M0_CH2 | TIM2_CH2 | Phase B (conflicts with USART2_TX) |
+| PB3 | PWM_M0_CH2 | TIM2_CH2 | Phase B |
 | PB10 | PWM_M0_CH3 | TIM2_CH3 | Phase C |
 
 ### Motor 1 - TIM3 (3-Phase High-Side PWM)
@@ -31,9 +31,9 @@ This document describes the final pin allocation for the FOC (Field-Oriented Con
 ### ADC2 - Current Sensing (12-bit, 3.3V VREF)
 | Pin | Function | ADC Channel | Notes |
 |-----|----------|-------------|-------|
-| PA0 | ADC2_IN1 | Channel 1 | Shared with TIM2_CH1 alternate function |
-| PA1 | ADC2_IN2 | Channel 2 | Shared with TIM2_CH2 alternate function |
-| PA6 | ADC2_IN3 | Channel 3 | Shared with TIM3_CH1 alternate function |
+| PA0 | ADC2_IN1 | Channel 1 | |
+| PA1 | ADC2_IN2 | Channel 2 | |
+| PA6 | ADC2_IN3 | Channel 3 | |
 | PA7 | ADC2_IN4 | Channel 4 | |
 
 **Note:** ADC pins PA0, PA1, PA6 share GPIO with timer PWM outputs. ADC sampling must be coordinated with PWM timing to avoid conflicts.
@@ -50,16 +50,24 @@ This document describes the final pin allocation for the FOC (Field-Oriented Con
 | PA15 | I2C1_SCL | 400 kHz | Fast mode |
 | PB7 | I2C1_SDA | 400 kHz | Fast mode |
 
+**I2C1 Devices:**
+- SSD1306 OLED display at address 0x3C
+- MT6701 encoder (Motor 0) at address 0x06
+
 ### I2C2 - Encoder/Sensor Bus #2
 | Pin | Function | Speed | Notes |
 |-----|----------|-------|-------|
 | PC4 | I2C2_SCL | 400 kHz | Fast mode |
 | PA8 | I2C2_SDA | 400 kHz | Fast mode |
 
+**I2C2 Devices:**
+- MT6701 encoder (Motor 1) at address 0x06
+
 **I2C Configuration:**
 - Two independent I2C buses for dual MT6701 magnetic encoders
 - Clock frequency: 400 kHz (I2C Fast Mode)
 - Pull-up resistors required externally (typically 4.7kΩ)
+- MT6701 14-bit magnetic angle encoders (16384 steps per revolution)
 
 ### USB - CDC-ACM (Virtual COM Port) **[DISABLED]**
 | Pin | Function | Notes |
