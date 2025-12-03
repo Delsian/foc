@@ -6,7 +6,7 @@
 
 /dts-v1/;
 #include <st/g4/stm32g431Xb.dtsi>
-#include <st/g4/stm32g431c(6-8-b)tx-pinctrl.dtsi>
+#include <st/g4/stm32g431c(6-8-b)ux-pinctrl.dtsi>
 #include <zephyr/dt-bindings/usb-c/pd.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 
@@ -26,9 +26,9 @@
 		mcuboot-button0 = &button_0;
 		mcuboot-led0 = &led_0;
 		sw0 = &button_0;
-		sw1 = &button_1;
 		usbc-port0 = &usbc1;
-		watchdog0 = &iwdg;
+		pwm-motor0 = &pwm_tim2;
+		pwm-motor1 = &pwm_tim3;
 	};
 
 	leds {
@@ -82,6 +82,11 @@
 	};
 };
 
+/* ========================================================================== */
+/* SWD / JTAG pins – Reserved by default (PA13, PA14)                        */
+/* PA13 = SWDIO, PA14 = SWCLK - automatically reserved for debugging         */
+/* ========================================================================== */
+
 &clk_lsi {
 	status = "okay";
 };
@@ -133,30 +138,13 @@ stm32_lp_tick_source: &lptim1 {
 	status = "disabled";
 };
 
-&usart2 {
+&usb {
 	status = "okay";
-	pinctrl-0 = <&usart2_tx_pa2 &usart2_rx_pa3>;
+	pinctrl-0 = <&usb_dm_pa11 &usb_dp_pa12>;
 	pinctrl-names = "default";
 
-	current-speed = <115200>;
-};
-
-&adc2 {
-	pinctrl-0 = <&adc2_in12_pb2>;
-	pinctrl-names = "default";
-	st,adc-clock-source = "SYNC";
-	st,adc-prescaler = <4>;
-
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	channel@c {
-		reg = <12>;
-		zephyr,gain = "ADC_GAIN_1";
-		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
-		zephyr,resolution = <12>;
-		zephyr,vref-mv = <3300>;
+	cdc_acm_uart: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
 	};
 };
 
@@ -167,27 +155,115 @@ stm32_lp_tick_source: &lptim1 {
 	pinctrl-names = "default";
 };
 
-zephyr_udc0: &usb {
-	pinctrl-0 = <&usb_dm_pa11 &usb_dp_pa12>;
+/* ========================================================================== */
+/* USART2 on PA2 (TX) + PA3 (RX)                                            */
+/* ========================================================================== */
+&usart2 {
+	status = "okay";
+	pinctrl-0 = <&usart2_tx_pa2 &usart2_rx_pa3>;
 	pinctrl-names = "default";
-	clocks = <&rcc STM32_CLOCK(APB1, 23)>,
-		 <&rcc STM32_SRC_PLL_Q CLK48_SEL(2)>;
+	current-speed = <115200>;
+};
+
+/* ========================================================================== */
+/* Motor 0 – TIM2 high-side only: PA5, PB3, PB10                           */
+/* ========================================================================== */
+&timers2 {
 	status = "okay";
 
-	cdc_acm_uart0 {
-		compatible = "zephyr,cdc-acm-uart";
+	pwm_tim2: pwm {
+		status = "okay";
+		pinctrl-0 = <&tim2_ch1_pa5
+		             &tim2_ch2_pb3
+		             &tim2_ch3_pb10>;
+		pinctrl-names = "default";
 	};
 };
 
+/* ========================================================================== */
+/* Motor 1 – TIM3 high-side only: PA4, PB0, PB1                            */
+/* ========================================================================== */
+&timers3 {
+	status = "okay";
+
+	pwm_tim3: pwm {
+		status = "okay";
+		pinctrl-0 = <&tim3_ch2_pa4
+		             &tim3_ch3_pb0
+		             &tim3_ch4_pb1>;
+		pinctrl-names = "default";
+	};
+};
+
+/* ========================================================================== */
+/* ADC1 - DISABLED                                                          */
+/* ADC2: PA0 (IN1), PA1 (IN2), PA6 (IN3), PA7 (IN4)                        */
+/* NOTE: PA0/PA1 shared with TIM2_CH1/CH2, PA6 shared with TIM3_CH1       */
+/* ========================================================================== */
+&adc1 {
+	status = "disabled";
+};
+
+&adc2 {
+	status = "okay";
+	pinctrl-0 = <&adc2_in1_pa0
+	             &adc2_in2_pa1
+	             &adc2_in3_pa6
+	             &adc2_in4_pa7>;
+	pinctrl-names = "default";
+	st,adc-clock-source = "SYNC";
+	st,adc-prescaler = <4>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <12>;
+		zephyr,vref-mv = <3300>;
+	};
+
+	channel@2 {
+		reg = <2>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <12>;
+		zephyr,vref-mv = <3300>;
+	};
+
+	channel@3 {
+		reg = <3>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <12>;
+		zephyr,vref-mv = <3300>;
+	};
+
+	channel@4 {
+		reg = <4>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <12>;
+		zephyr,vref-mv = <3300>;
+	};
+};
+
+/* ========================================================================== */
+/* I2C1 on PA15 (SCL) + PB7 (SDA)                                           */
+/* ========================================================================== */
 &i2c1 {
 	status = "okay";
-	/* NOTE: Using PA15/PB7 instead of PB8/PB9
-	 * PB8 is reserved for BOOT0 button - see gpio_keys above */
 	pinctrl-0 = <&i2c1_scl_pa15 &i2c1_sda_pb7>;
 	pinctrl-names = "default";
 	clock-frequency = <I2C_BITRATE_FAST>;
 
-	ssd1306: ssd1306@3c {
+    ssd1306: ssd1306@3c {
 		compatible = "solomon,ssd1306fb";
 		reg = <0x3c>;
 		width = <72>;
@@ -201,3 +277,36 @@ zephyr_udc0: &usb {
 		prechargep = <0x22>;
 	};
 };
+
+/* ========================================================================== */
+/* I2C2 on PC4 (SCL) + PA8 (SDA)                                            */
+/* ========================================================================== */
+&i2c2 {
+	status = "okay";
+	pinctrl-0 = <&i2c2_scl_pc4 &i2c2_sda_pa8>;
+	pinctrl-names = "default";
+	clock-frequency = <I2C_BITRATE_FAST>;
+};
+
+/* ========================================================================== */
+/* FDCAN1 on PB8 (RX) + PB9 (TX)                                            */
+/* ========================================================================== */
+&fdcan1 {
+	status = "okay";
+	pinctrl-0 = <&fdcan1_rx_pb8 &fdcan1_tx_pb9>;
+	pinctrl-names = "default";
+	clocks = <&rcc STM32_CLOCK(APB1, 25)>;
+	clk-divider = <1>;
+	bosch,mram-cfg = <0x0 28 8 18 18 0 8 8>;
+};
+
+/* ========================================================================== */
+/* Everything else disabled to keep pins free                                */
+/* ========================================================================== */
+&timers1 { status = "disabled"; };
+&timers4 { status = "disabled"; };
+&timers8 { status = "disabled"; };
+&i2c3   { status = "disabled"; };
+&spi1   { status = "disabled"; };
+&spi2   { status = "disabled"; };
+&spi3   { status = "disabled"; };

@@ -20,6 +20,7 @@ project(foc)
 target_sources(app PRIVATE
     src/main.c
     src/oled.c
+    src/mt6701.c
 )
 
 # Conditionally add USB CDC-ACM source (after Zephyr is loaded)
