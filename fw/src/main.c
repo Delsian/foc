@@ -2,6 +2,7 @@
 #include <zephyr/logging/log.h>
 #include "oled.h"
 #include "cdcacm.h"
+#include "console.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 

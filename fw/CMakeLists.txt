@@ -23,10 +23,13 @@ target_sources(app PRIVATE
     src/mt6701.c
 )
 
-# Conditionally add USB CDC-ACM source (after Zephyr is loaded)
+# USB CDC-ACM source
 target_sources_ifdef(CONFIG_ENABLE_USB app PRIVATE src/cdcacm.c)
 
-include_directories(src)
+# Shell source
+target_sources_ifdef(CONFIG_SHELL app PRIVATE src/console.c)
+
+include_directories(inc)
 
 # Add debug-specific compiler flags
 if(BUILD_TYPE STREQUAL "debug")
