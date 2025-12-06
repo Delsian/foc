@@ -20,13 +20,18 @@ project(foc)
 target_sources(app PRIVATE
     src/main.c
     src/oled.c
-    src/mt6701.c
+    src/motor_control.c
+    src/foc/mt6701.c
+    src/foc/foc_math.c
+    src/foc/foc_pid.c
+    src/foc/foc_motor.c
+    src/foc/foc_current_sense.c
 )
 
-# Conditionally add USB CDC-ACM source (after Zephyr is loaded)
-target_sources_ifdef(CONFIG_ENABLE_USB app PRIVATE src/cdcacm.c)
+# USB CDC-ACM disabled (CONFIG_ENABLE_USB not defined)
+# target_sources_ifdef(CONFIG_ENABLE_USB app PRIVATE src/cdcacm.c)
 
-include_directories(src)
+include_directories(inc)
 
 # Add debug-specific compiler flags
 if(BUILD_TYPE STREQUAL "debug")

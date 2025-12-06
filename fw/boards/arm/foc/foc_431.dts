@@ -200,7 +200,6 @@ stm32_lp_tick_source: &lptim1 {
 /* ========================================================================== */
 /* ADC1 - DISABLED                                                          */
 /* ADC2: PA0 (IN1), PA1 (IN2), PA6 (IN3), PA7 (IN4)                        */
-/* NOTE: PA0/PA1 shared with TIM2_CH1/CH2, PA6 shared with TIM3_CH1       */
 /* ========================================================================== */
 &adc1 {
 	status = "disabled";

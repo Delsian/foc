@@ -128,7 +128,7 @@
         "version": "2.0.0",
         "tasks": [
             {
-                "label": "BuildFOC",
+                "label": "BuildFW",
                 "type": "process",
                 "command": "${config:west}",
                 "options": {
@@ -200,12 +200,25 @@
                 },
                 "problemMatcher": [ "$gcc" ]
             },
+            {
+                "label": "Serial Monitor",
+                "type": "shell",
+                "command": "python -m serial.tools.miniterm /dev/ttyUSB0 115200",
+                "isBackground": true,
+                "problemMatcher": [],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "dedicated"
+                },
+            }
 		]
 	},
     "launch": {
         "configurations": [
             {
-                "name": "RunFoc",
+                "name": "RunFW",
                 "cwd": "${workspaceFolder:fw}",
                 "executable": "${config:app.build_dir}/zephyr/zephyr.elf",
                 "request": "launch",
@@ -223,18 +236,7 @@
                     "enabled": true,
                     "samplesPerSecond": 4
                 },
-                "rttConfig": {
-                    "enabled": true,
-                    "address": "auto",
-                    "decoders": [
-                        {
-                            "label": "",
-                            "port": 0,
-                            "type": "console"
-                        }
-                    ]
-                },
-                "preLaunchTask": "BuildFOC",
+                "preLaunchTask": "BuildFW",
                 "serverArgs": ["-speed", "4000"]
             },
         ]

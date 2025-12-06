@@ -17,8 +17,9 @@
  * magnetic angle position encoder sensor.
  */
 
-/* MT6701 I2C slave address (7-bit) */
+/* MT6701 I2C slave addresses (7-bit) */
 #define MT6701_I2C_ADDR_DEFAULT    0x06
+#define MT6701_I2C_ADDR_ALTERNATE  0x07  /* Alternate address for second encoder */
 
 /* MT6701 register addresses */
 #define MT6701_REG_ANGLE_H         0x03  /* Angle[13:6] */
