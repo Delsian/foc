@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (NOT BUILD_TYPE)
     set(BUILD_TYPE debug)
@@ -19,8 +20,8 @@ project(foc)
 
 target_sources(app PRIVATE
     src/main.c
-    src/oled.c
-    src/mt6701.c
+    src/drv/oled.c
+    src/drv/mt6701.c
 )
 
 # USB CDC-ACM source

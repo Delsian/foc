@@ -1,0 +1,13 @@
+# Copyright (c) 2025 FOC Project
+# SPDX-License-Identifier: Apache-2.0
+
+description: MPS MT6701 14-bit Magnetic Angle Position Encoder
+
+compatible: "mps,mt6701"
+
+include: [sensor-device.yaml, i2c-device.yaml]
+
+properties:
+  label:
+    type: string
+    description: Human readable string describing the device

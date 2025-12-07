@@ -279,7 +279,7 @@ stm32_lp_tick_source: &lptim1 {
 	};
 
 	mt6701_motor0: mt6701@6 {
-		compatible = "i2c-device";
+		compatible = "mps,mt6701";
 		reg = <0x06>;
 		label = "MT6701_MOTOR0";
 	};
@@ -295,7 +295,7 @@ stm32_lp_tick_source: &lptim1 {
 	clock-frequency = <I2C_BITRATE_FAST>;
 
 	mt6701_motor1: mt6701@6 {
-		compatible = "i2c-device";
+		compatible = "mps,mt6701";
 		reg = <0x06>;
 		label = "MT6701_MOTOR1";
 	};

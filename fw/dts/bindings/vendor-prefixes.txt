@@ -1,0 +1,6 @@
+# This file contains a list of vendor prefixes
+# used in device tree compatible strings
+#
+# Format: <vendor> <Full vendor name>
+
+mps	Monolithic Power Systems Inc.
