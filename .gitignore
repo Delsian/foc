@@ -58,3 +58,4 @@ dkms.conf
 /modules
 /zephyr/
 /fw/build*
+/build

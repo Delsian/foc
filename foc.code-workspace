@@ -108,6 +108,12 @@
             "prj.conf": "prj*.conf"
         },
         "editor.renderControlCharacters": false,
+
+        // Terminal settings for proper ANSI/VT100 support
+        "terminal.integrated.enablePersistentSessions": false,
+        "terminal.integrated.localEchoEnabled": "off",
+        "terminal.integrated.localEchoLatencyThreshold": -1,
+
         "cortex-debug.variableUseNaturalFormat": false,
         "nrf-connect.applications": [
             "${workspaceFolder:fw}",
@@ -203,7 +209,20 @@
             {
                 "label": "Serial Monitor",
                 "type": "shell",
-                "command": "python -m serial.tools.miniterm /dev/ttyUSB0 115200",
+                "command": "python -m serial.tools.miniterm --eol LF --filter direct /dev/ttyUSB0 115200",
+                "isBackground": true,
+                "problemMatcher": [],
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "dedicated"
+                },
+            },
+            {
+                "label": "Serial Monitor (Raw)",
+                "type": "shell",
+                "command": "python -m serial.tools.miniterm --raw /dev/ttyUSB0 115200",
                 "isBackground": true,
                 "problemMatcher": [],
                 "presentation": {
