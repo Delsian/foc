@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "console.h"
 #include "mt6701.h"
+#include "adc_dma.h"
 
 LOG_MODULE_REGISTER(console, LOG_LEVEL_INF);
 
@@ -157,6 +158,35 @@ static int cmd_i2c_scan(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
+static int cmd_adc_read(const struct shell *sh, size_t argc, char **argv)
+{
+#if defined(CONFIG_FOC_ADC_DMA)
+	uint16_t values[CONFIG_FOC_ADC_NUM_CHANNELS];
+	int ret;
+
+	/* Read all ADC channels */
+	ret = adc_dma_get_all_channels(values, CONFIG_FOC_ADC_NUM_CHANNELS);
+	if (ret < 0) {
+		shell_error(sh, "Failed to read ADC channels: %d", ret);
+		return ret;
+	}
+
+	shell_print(sh, "ADC Channels:");
+	for (uint8_t i = 0; i < CONFIG_FOC_ADC_NUM_CHANNELS; i++) {
+		uint32_t mv = adc_dma_raw_to_mv(values[i]);
+		int mv_int = mv / 1000;
+		int mv_frac = (mv % 1000);
+		shell_print(sh, "  CH%d: %4u (0x%03X) = %d.%03d V",
+			    i + 1, values[i], values[i], mv_int, mv_frac);
+	}
+
+	return 0;
+#else
+	shell_error(sh, "ADC DMA not enabled");
+	return -ENOTSUP;
+#endif
+}
+
 static int cmd_help_custom(const struct shell *sh, size_t argc, char **argv)
 {
 	ARG_UNUSED(argc);
@@ -165,6 +195,7 @@ static int cmd_help_custom(const struct shell *sh, size_t argc, char **argv)
 	shell_print(sh, "FOC Controller Commands:");
 	shell_print(sh, "  version              - Show firmware version");
 	shell_print(sh, "  encoder read [id]    - Read encoder angle (id: 0 or 1, default: 0)");
+	shell_print(sh, "  adc read             - Read all ADC channels");
 	shell_print(sh, "  i2c scan [bus]       - Scan I2C bus (bus: 1 or 2, default: 1)");
 	shell_print(sh, "");
 	shell_print(sh, "Built-in commands:");
@@ -180,7 +211,13 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_encoder,
 	SHELL_SUBCMD_SET_END
 );
 
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_adc,
+	SHELL_CMD_ARG(read, NULL, "Read all ADC channels", cmd_adc_read, 1, 0),
+	SHELL_SUBCMD_SET_END
+);
+
 SHELL_CMD_REGISTER(version, NULL, "Show firmware version", cmd_version);
 SHELL_CMD_REGISTER(encoder, &sub_encoder, "Encoder commands", NULL);
+SHELL_CMD_REGISTER(adc, &sub_adc, "ADC commands", NULL);
 SHELL_CMD_REGISTER(i2c, NULL, "Scan I2C bus [1|2]", cmd_i2c_scan);
 SHELL_CMD_REGISTER(foc, NULL, "Show FOC-specific help", cmd_help_custom);

@@ -26,11 +26,3 @@ int main(void)
 
     return 0;
 }
-
-static int boot_workaround(void)
-{
-    __disable_irq();
-
-    return 0;
-}
-SYS_INIT(boot_workaround, PRE_KERNEL_1, 39);

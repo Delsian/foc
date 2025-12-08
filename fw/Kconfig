@@ -1,0 +1,36 @@
+# FOC Application Kconfig
+
+mainmenu "FOC Application Configuration"
+
+config FOC_ADC_DMA
+	bool "Enable ADC periodic sampling driver"
+	default y
+	depends on ADC
+	help
+	  Enable ADC driver that periodically reads analog channels
+	  using a timer and stores results in a buffer accessible
+	  to the application.
+
+if FOC_ADC_DMA
+
+config FOC_ADC_SAMPLE_FREQ_HZ
+	int "ADC sampling frequency in Hz"
+	default 10000
+	range 100 100000
+	help
+	  Frequency at which ADC channels are sampled using DMA.
+	  Higher frequencies provide better resolution for fast-changing
+	  signals but increase CPU/DMA load.
+	  Default: 10 kHz (10000 Hz)
+
+config FOC_ADC_NUM_CHANNELS
+	int "Number of ADC channels to sample"
+	default 4
+	range 1 16
+	help
+	  Number of ADC channels to sample via DMA.
+	  Must match the number of channels configured in device tree.
+
+endif # FOC_ADC_DMA
+
+source "Kconfig.zephyr"

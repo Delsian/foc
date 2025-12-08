@@ -124,7 +124,7 @@
             "build_dir": "${workspaceFolder:fw}/build",
             "zephyr_config": "-DOVERLAY_CONFIG=prj.conf;prj_debug.conf",
             "compile_args": "",
-            "debug_soc": "STM32G431C8",
+            "debug_soc": "STM32G431CB",
             "svdFile": "STM32G431.svd",
             "board": "foc_431"
             //"board": "weact_stm32g431_core"

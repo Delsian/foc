@@ -24,6 +24,9 @@ target_sources(app PRIVATE
     src/drv/mt6701.c
 )
 
+# ADC DMA driver
+target_sources_ifdef(CONFIG_FOC_ADC_DMA app PRIVATE src/drv/adc_dma.c)
+
 # USB CDC-ACM source
 target_sources_ifdef(CONFIG_ENABLE_USB app PRIVATE src/cdcacm.c)
 
