@@ -118,7 +118,7 @@ static const uint8_t init_seq[] = {
     0xaf   // --turn on oled panel
 };
 
-void oled_init(void) {
+static int oled_init(void) {
     int ret;
 
     // Get I2C device binding
@@ -126,7 +126,7 @@ void oled_init(void) {
     if (!device_is_ready(i2c_dev)) {
         LOG_INF("I2C device not ready");
         oled_initialized = false;
-        return;
+        return ENODEV;
     }
 
     // Send initialization sequence
@@ -134,11 +134,12 @@ void oled_init(void) {
     if (ret != 0) {
         LOG_INF("Failed to initialize SSD1306: %d", ret);
         oled_initialized = false;
-        return;
+        return ret;
     }
 
     LOG_INF("SSD1306 initialized");
     oled_initialized = true;
+    return 0;
 }
 
 void oled_update(void)
@@ -263,3 +264,5 @@ void oled_write(uint16_t n) {
     copy_buf(&font16x24[n * 48], 28);
     oled_update();
 }
+
+SYS_INIT(oled_init, APPLICATION, 1);

@@ -5,14 +5,6 @@
 #include <stdbool.h>
 
 /**
- * @brief Initialize the OLED display
- *
- * This function initializes the SSD1306 OLED display with the
- * default configuration and displays the number 101.
- */
-void oled_init(void);
-
-/**
  * @brief Update the OLED display with current buffer content
  *
  * This function sends the display buffer to the OLED screen.

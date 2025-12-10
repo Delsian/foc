@@ -216,8 +216,13 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_adc,
 	SHELL_SUBCMD_SET_END
 );
 
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_i2c,
+	SHELL_CMD_ARG(scan, NULL, "Scan I2C bus [1|2]", cmd_i2c_scan, 1, 1),
+	SHELL_SUBCMD_SET_END
+);
+
 SHELL_CMD_REGISTER(version, NULL, "Show firmware version", cmd_version);
 SHELL_CMD_REGISTER(encoder, &sub_encoder, "Encoder commands", NULL);
 SHELL_CMD_REGISTER(adc, &sub_adc, "ADC commands", NULL);
-SHELL_CMD_REGISTER(i2c, NULL, "Scan I2C bus [1|2]", cmd_i2c_scan);
+SHELL_CMD_REGISTER(i2c, &sub_i2c, "I2C commands", NULL);
 SHELL_CMD_REGISTER(foc, NULL, "Show FOC-specific help", cmd_help_custom);

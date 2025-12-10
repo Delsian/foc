@@ -20,31 +20,6 @@
  */
 
 /**
- * @brief Initialize ADC DMA driver
- *
- * Sets up ADC with DMA for continuous sampling at the configured frequency.
- * Channels are read in sequence and stored in the buffer.
- *
- * @return 0 on success, negative errno on failure
- */
-int adc_dma_init(void);
-
-/**
- * @brief Start ADC DMA sampling
- *
- * Begins continuous ADC sampling using DMA. Samples are stored in
- * internal buffer and can be read using adc_dma_get_channel().
- */
-void adc_dma_start(void);
-
-/**
- * @brief Stop ADC DMA sampling
- *
- * Stops continuous ADC sampling. Buffer retains last sampled values.
- */
-void adc_dma_stop(void);
-
-/**
  * @brief Get latest ADC value for a channel
  *
  * Returns the most recently sampled ADC value for the specified channel.

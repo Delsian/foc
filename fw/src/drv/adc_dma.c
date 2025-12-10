@@ -25,7 +25,6 @@ static const struct device *adc_dev = DEVICE_DT_GET(DT_NODELABEL(adc2));
 
 static uint16_t dma_buffer[NUM_CHANNELS] __aligned(4);
 static volatile bool data_ready = false;
-static volatile bool sampling_active = false;
 
 static struct adc_channel_cfg channel_cfg = {
 	.gain = ADC_GAIN,
@@ -44,9 +43,6 @@ static enum adc_action adc_dma_scan_callback(const struct device *dev,
 
 	data_ready = true;
 
-	if (sampling_active) {
-		return ADC_ACTION_REPEAT;
-	}
 	return ADC_ACTION_FINISH;
 }
 
@@ -93,41 +89,6 @@ static int adc_channels_init(void)
 	return 0;
 }
 
-int adc_dma_init(void)
-{
-	int ret = adc_channels_init();
-	if (ret < 0) {
-		return ret;
-	}
-
-	data_ready = false;
-	sampling_active = false;
-	memset(dma_buffer, 0, sizeof(dma_buffer));
-
-	return 0;
-}
-
-void adc_dma_start(void)
-{
-	data_ready = false;
-	sampling_active = true;
-
-	int ret = adc_read(adc_dev, &sequence);
-	if (ret < 0) {
-		LOG_ERR("Failed to start ADC DMA sampling: %d", ret);
-		sampling_active = false;
-		return;
-	}
-
-	LOG_INF("ADC DMA sampling started");
-}
-
-void adc_dma_stop(void)
-{
-	sampling_active = false;
-	LOG_INF("ADC DMA sampling stopped");
-}
-
 int adc_dma_get_channel(uint8_t channel, uint16_t *value)
 {
 	if (!value || channel >= NUM_CHANNELS) {
@@ -152,6 +113,8 @@ int adc_dma_get_all_channels(uint16_t *values, uint8_t num_channels)
 		return -ENODATA;
 	}
 
+	data_ready = false;
+
 	for (uint8_t i = 0; i < num_channels; i++) {
 		values[i] = dma_buffer[i];
 	}
@@ -166,14 +129,19 @@ uint32_t adc_dma_raw_to_mv(uint16_t raw_value)
 
 static int adc_dma_sys_init(void)
 {
-	int ret = adc_dma_init();
+	int ret = adc_channels_init();
 	if (ret < 0) {
-		LOG_ERR("ADC DMA initialization failed: %d", ret);
 		return ret;
 	}
 
-	adc_dma_start();
-	return 0;
+	data_ready = false;
+	memset(dma_buffer, 0, sizeof(dma_buffer));
+
+	ret = adc_read(adc_dev, &sequence);
+	if (ret < 0) {
+		LOG_ERR("Failed to start ADC DMA sampling: %d", ret);
+	}
+	return ret;
 }
 
-SYS_INIT(adc_dma_sys_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+SYS_INIT(adc_dma_sys_init, APPLICATION, 2);

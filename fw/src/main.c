@@ -16,9 +16,6 @@ int main(void)
     cdcacm_init();
 #endif /* CONFIG_ENABLE_USB */
 
-    // Initialize OLED display (failures are handled internally)
-    oled_init();
-
     while (1) {
         oled_write(val++);
         k_sleep(K_MSEC(500));
