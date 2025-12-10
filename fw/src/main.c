@@ -9,7 +9,6 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 int main(void)
 {
-    uint8_t val = 0;
     const struct device *pwm_motor0;
 
     LOG_INF("FOC STM32G431 Starting");
@@ -32,7 +31,7 @@ int main(void)
     }
 
     while (1) {
-        oled_write(val++);
+        pwm_bldc_update_oled();
         k_sleep(K_MSEC(500));
     }
 

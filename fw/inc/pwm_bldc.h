@@ -34,6 +34,8 @@ struct pwm_bldc_config {
 struct pwm_bldc_data {
 	const struct device *dev;
 	bool initialized;
+	float phase;  /* Current phase angle in degrees */
+	float duty;   /* Current duty cycle in percentage */
 };
 
 /**
@@ -82,5 +84,13 @@ int pwm_bldc_disable(const struct device *dev);
  * @return Pointer to device or NULL if not found
  */
 const struct device *pwm_bldc_get_device(const char *alias);
+
+/**
+ * @brief Update OLED display with current PWM values
+ *
+ * Displays phase and duty cycle for both motors on the OLED.
+ * Motor 0 on line 0, Motor 1 on line 1.
+ */
+void pwm_bldc_update_oled(void);
 
 #endif /* PWM_BLDC_H */

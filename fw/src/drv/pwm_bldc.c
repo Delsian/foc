@@ -5,16 +5,16 @@
  */
 
 #include "pwm_bldc.h"
+#include "oled.h"
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/init.h>
 #include <math.h>
+#include <string.h>
 
 LOG_MODULE_REGISTER(pwm_bldc, LOG_LEVEL_INF);
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#define M_PI_F 3.14159265358979323846f
 
 /* Device instances - Motor 0 (TIM2) */
 /* TIM2 channels: CH1=1, CH2=2, CH3=3 */
@@ -209,7 +209,7 @@ int pwm_bldc_set_vector(const struct device *dev, float angle_deg, float amplitu
 	while (angle_deg >= 360.0f) angle_deg -= 360.0f;
 
 	/* Convert to radians */
-	angle_rad = angle_deg * M_PI / 180.0f;
+	angle_rad = angle_deg * M_PI_F / 180.0f;
 
 	/* Calculate three-phase sinusoidal values with 120-degree spacing
 	 * Phase A: sin(θ)
@@ -217,8 +217,8 @@ int pwm_bldc_set_vector(const struct device *dev, float angle_deg, float amplitu
 	 * Phase C: sin(θ - 240°) = sin(θ + 120°)
 	 */
 	sine_a = sinf(angle_rad);
-	sine_b = sinf(angle_rad - 2.0f * M_PI / 3.0f);  /* -120 degrees */
-	sine_c = sinf(angle_rad + 2.0f * M_PI / 3.0f);  /* +120 degrees */
+	sine_b = sinf(angle_rad - 2.0f * M_PI_F / 3.0f);  /* -120 degrees */
+	sine_c = sinf(angle_rad + 2.0f * M_PI_F / 3.0f);  /* +120 degrees */
 
 	/* Convert sine values (-1 to +1) to duty cycles (0 to 100%)
 	 * Using bipolar modulation: duty = 50% + (sine * amplitude/2)
@@ -258,6 +258,10 @@ int pwm_bldc_set_vector(const struct device *dev, float angle_deg, float amplitu
 		LOG_ERR("%s: Failed to set PWM channel 3: %d", dev->name, ret);
 		return ret;
 	}
+
+	/* Store current values */
+	data->phase = angle_deg;
+	data->duty = amplitude;
 
 	return 0;
 }
@@ -332,6 +336,23 @@ const struct device *pwm_bldc_get_device(const char *alias)
 
 	LOG_ERR("Unknown PWM BLDC alias: %s", alias);
 	return NULL;
+}
+
+void pwm_bldc_update_oled(void)
+{
+	oled_clear();
+
+	if (pwm_bldc_motor0_data.initialized) {
+		oled_write((uint16_t)pwm_bldc_motor0_data.phase, 0, 0);
+		oled_write((uint16_t)pwm_bldc_motor0_data.duty, 0, 40);
+	}
+
+	if (pwm_bldc_motor1_data.initialized) {
+		oled_write((uint16_t)pwm_bldc_motor1_data.phase, 2, 0);
+		oled_write((uint16_t)pwm_bldc_motor1_data.duty, 2, 40);
+	}
+
+	oled_update();
 }
 
 /* Auto-initialization at boot */
