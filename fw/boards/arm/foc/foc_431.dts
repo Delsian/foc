@@ -187,6 +187,22 @@ stm32_lp_tick_source: &lptim1 {
 		             &tim2_ch2_pb3
 		             &tim2_ch3_pb10>;
 		pinctrl-names = "default";
+		#pwm-cells = <3>;
+	};
+};
+
+/ {
+	pwm_motor0_dev: pwm-motor0-device {
+		compatible = "pwm-leds";
+		pwm_motor0_ch1: pwm-motor0-ch1 {
+			pwms = <&pwm_tim2 1 50000 PWM_POLARITY_NORMAL>;
+		};
+		pwm_motor0_ch2: pwm-motor0-ch2 {
+			pwms = <&pwm_tim2 2 50000 PWM_POLARITY_NORMAL>;
+		};
+		pwm_motor0_ch3: pwm-motor0-ch3 {
+			pwms = <&pwm_tim2 3 50000 PWM_POLARITY_NORMAL>;
+		};
 	};
 };
 
@@ -202,6 +218,22 @@ stm32_lp_tick_source: &lptim1 {
 		             &tim3_ch3_pb0
 		             &tim3_ch4_pb1>;
 		pinctrl-names = "default";
+		#pwm-cells = <3>;
+	};
+};
+
+/ {
+	pwm_motor1_dev: pwm-motor1-device {
+		compatible = "pwm-leds";
+		pwm_motor1_ch1: pwm-motor1-ch1 {
+			pwms = <&pwm_tim3 2 50000 PWM_POLARITY_NORMAL>;
+		};
+		pwm_motor1_ch2: pwm-motor1-ch2 {
+			pwms = <&pwm_tim3 3 50000 PWM_POLARITY_NORMAL>;
+		};
+		pwm_motor1_ch3: pwm-motor1-ch3 {
+			pwms = <&pwm_tim3 4 50000 PWM_POLARITY_NORMAL>;
+		};
 	};
 };
 

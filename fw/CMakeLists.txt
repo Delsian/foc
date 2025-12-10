@@ -22,6 +22,7 @@ target_sources(app PRIVATE
     src/main.c
     src/drv/oled.c
     src/drv/mt6701.c
+    src/drv/pwm_bldc.c
 )
 
 # ADC DMA driver
