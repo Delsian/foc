@@ -15,10 +15,22 @@ LOG_MODULE_REGISTER(adc_dma, LOG_LEVEL_INF);
 
 static const struct device *adc_dev = DEVICE_DT_GET(DT_NODELABEL(adc2));
 
+/* STM32 register offsets and bit definitions for ADC/TIM sync */
+#define ADC_CFGR_OFFSET 0x0C
+#define ADC_CR_OFFSET 0x08
+#define TIM_CR2_OFFSET 0x04
+
+/* ADC_CFGR register bits */
+#define ADC_CFGR_EXTEN_RISING (1UL << 10)  /* External trigger on rising edge */
+#define ADC_CFGR_EXTSEL_TIM2_TRGO (0xBUL << 5)  /* TIM2_TRGO event (bits 9:5 = 0b01011) */
+
+/* TIM_CR2 register bits */
+#define TIM_CR2_MMS_UPDATE (2UL << 4)  /* Master mode: Update event as TRGO */
+
 #define ADC_RESOLUTION		12
 #define ADC_GAIN		ADC_GAIN_1
 #define ADC_REFERENCE		ADC_REF_INTERNAL
-#define ADC_ACQUISITION_TIME	ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 248)
+#define ADC_ACQUISITION_TIME	ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 48)  /* 47.5 cycles */
 #define ADC_VREF_MV		3300
 #define NUM_CHANNELS		CONFIG_FOC_ADC_NUM_CHANNELS
 #define DMA_BUFFER_SIZE		(NUM_CHANNELS * sizeof(uint16_t))
@@ -43,7 +55,8 @@ static enum adc_action adc_dma_scan_callback(const struct device *dev,
 
 	data_ready = true;
 
-	return ADC_ACTION_FINISH;
+	/* Return REPEAT to keep ADC running continuously for hardware triggers */
+	return ADC_ACTION_REPEAT;
 }
 
 static struct adc_sequence_options sequence_opts = {
@@ -60,6 +73,34 @@ static struct adc_sequence sequence = {
 	.oversampling = 0,
 	.calibrate = false,
 };
+
+static void configure_tim2_adc_trigger(void)
+{
+	volatile uint32_t *tim2_cr2 = (volatile uint32_t *)(TIM2_BASE + TIM_CR2_OFFSET);
+
+	/* Configure TIM2 master mode to output update event on TRGO */
+	uint32_t cr2_val = *tim2_cr2;
+	cr2_val &= ~(0x7UL << 4);  /* Clear MMS bits */
+	cr2_val |= TIM_CR2_MMS_UPDATE;  /* Set MMS to update event */
+	*tim2_cr2 = cr2_val;
+
+	LOG_INF("TIM2 configured to trigger ADC on update events");
+}
+
+static void configure_adc_hw_trigger(void)
+{
+	volatile uint32_t *adc2_cfgr = (volatile uint32_t *)(ADC2_BASE + ADC_CFGR_OFFSET);
+
+	/* Configure ADC2 to trigger on TIM2 TRGO rising edge */
+	uint32_t cfgr_val = *adc2_cfgr;
+	cfgr_val &= ~(0x1FUL << 5);  /* Clear EXTSEL bits */
+	cfgr_val &= ~(0x3UL << 10);  /* Clear EXTEN bits */
+	cfgr_val |= ADC_CFGR_EXTSEL_TIM2_TRGO;  /* Select TIM2_TRGO */
+	cfgr_val |= ADC_CFGR_EXTEN_RISING;  /* Enable rising edge trigger */
+	*adc2_cfgr = cfgr_val;
+
+	LOG_INF("ADC2 configured for hardware trigger from TIM2 TRGO");
+}
 
 static int adc_channels_init(void)
 {
@@ -137,11 +178,22 @@ static int adc_dma_sys_init(void)
 	data_ready = false;
 	memset(dma_buffer, 0, sizeof(dma_buffer));
 
+	/* Configure TIM2 to trigger ADC conversions BEFORE starting ADC */
+	configure_tim2_adc_trigger();
+
+	/* Configure ADC2 to use TIM2 TRGO as external trigger BEFORE adc_read */
+	configure_adc_hw_trigger();
+
+	/* Start ADC - it will now wait for TIM2 TRGO triggers */
 	ret = adc_read(adc_dev, &sequence);
 	if (ret < 0) {
 		LOG_ERR("Failed to start ADC DMA sampling: %d", ret);
+		return ret;
 	}
-	return ret;
+
+	LOG_INF("ADC sampling synchronized with TIM2 PWM (20kHz)");
+
+	return 0;
 }
 
-SYS_INIT(adc_dma_sys_init, APPLICATION, 2);
+SYS_INIT(adc_dma_sys_init, APPLICATION, 92);

@@ -177,9 +177,12 @@ stm32_lp_tick_source: &lptim1 {
 
 /* ========================================================================== */
 /* Motor 0 – TIM2 high-side only: PA5, PB3, PB10                           */
+/* TIM2 configured to trigger ADC2 conversions via TRGO (update event)     */
 /* ========================================================================== */
 &timers2 {
 	status = "okay";
+	st,prescaler = <0>;
+	st,countermode = <0>;
 
 	pwm_tim2: pwm {
 		status = "okay";
@@ -240,6 +243,7 @@ stm32_lp_tick_source: &lptim1 {
 /* ========================================================================== */
 /* ADC1 - DISABLED                                                          */
 /* ADC2: PA0 (IN1), PA1 (IN2), PA6 (IN3), PA7 (IN4)                        */
+/* Triggered by TIM2 TRGO for synchronization with PWM                     */
 /* ========================================================================== */
 &adc1 {
 	status = "disabled";
@@ -254,7 +258,7 @@ stm32_lp_tick_source: &lptim1 {
 	pinctrl-names = "default";
 	st,adc-clock-source = "SYNC";
 	st,adc-prescaler = <4>;
-	dmas = <&dmamux1 0 5 (STM32_DMA_PERIPH_RX | STM32_DMA_PRIORITY_HIGH)>;
+	dmas = <&dmamux1 0 5 (STM32_DMA_PERIPH_RX | STM32_DMA_PRIORITY_VERY_HIGH)>;
 	dma-names = "dmamux";
 
 	#address-cells = <1>;
@@ -264,7 +268,7 @@ stm32_lp_tick_source: &lptim1 {
 		reg = <1>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 248)>;
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 48)>;
 		zephyr,resolution = <12>;
 		zephyr,vref-mv = <3300>;
 	};
@@ -273,7 +277,7 @@ stm32_lp_tick_source: &lptim1 {
 		reg = <2>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 248)>;
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 48)>;
 		zephyr,resolution = <12>;
 		zephyr,vref-mv = <3300>;
 	};
@@ -282,7 +286,7 @@ stm32_lp_tick_source: &lptim1 {
 		reg = <3>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 248)>;
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 48)>;
 		zephyr,resolution = <12>;
 		zephyr,vref-mv = <3300>;
 	};
@@ -291,7 +295,7 @@ stm32_lp_tick_source: &lptim1 {
 		reg = <4>;
 		zephyr,gain = "ADC_GAIN_1";
 		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 248)>;
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_TICKS, 48)>;
 		zephyr,resolution = <12>;
 		zephyr,vref-mv = <3300>;
 	};
